@@ -1,0 +1,52 @@
+# OS & editor artificats
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.code-workspace
+
+# Logs & diagnostics
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependencies & package managers
+node_modules/
+.pnpm-store/
+.pnp.*
+
+# Build outputs & caches
+.next/
+.next-turbo/
+out/
+dist/
+build/
+.vercel/
+.turbo/
+.swc/
+.eslintcache
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Temporary files
+tmp/
+temp/
+*.swp
+*.swo
+.node_repl_history
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Supabase CLI artifacts
+.supabase/
+supabase/.branches/
+supabase/.temp/
+supabase/docker/volumes/
+supabase/.env

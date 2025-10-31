@@ -1,7 +1,7 @@
 # devex Specification
 
 ## Purpose
-TBD - created by archiving change add-claude-skills-and-mcp-scaffold. Update Purpose after archive.
+Define the Developer Experience (DevEx) for Claude Code integration: Project Skills for automation (Stripe, Supabase, Security, Frontend, Docs), slash commands for common workflows, and optional MCP for external system access with read-first security posture.
 ## Requirements
 ### Requirement: Project Skills Scaffolding
 The project SHALL include Claude Code Project Skills under `.claude/skills/` for:
