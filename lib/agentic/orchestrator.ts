@@ -5,6 +5,7 @@ import { SchemaAgent } from './agents/schema-agent';
 import { ApiAgent } from './agents/api-agent';
 import { FrontendAgent } from './agents/frontend-agent';
 import { DeploymentAgent } from './agents/deployment-agent';
+import { generateStripeCheckoutExamples } from './templates';
 
 export type OrchestrateOptions = {
   scopedPaths?: string[];
@@ -49,6 +50,16 @@ export async function orchestrate(description: string, options: OrchestrateOptio
 
   let logs: string[] = [];
   logs = logs.concat(schemaOut.logs ?? [], apiOut.logs ?? [], feOut.logs ?? []);
+
+  // Stripe examples if intent includes payments
+  const mentionsPayment =
+    intent.entities.some((e) => e.name.toLowerCase().includes('payment')) ||
+    intent.operations.some((o) => (o.name || '').toLowerCase().includes('payment'));
+  if (mentionsPayment) {
+    const stripeArtifacts = generateStripeCheckoutExamples();
+    stripeArtifacts.forEach((a) => artifacts.push(a));
+    logs.push('Orchestrator: Stripe checkout examples added');
+  }
 
   let ctx = checkpoint(context, outputs);
 
