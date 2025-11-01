@@ -1,5 +1,7 @@
 # agentic-builder Specification Deltas
 
+**Note**: This spec defines the agentic SaaS builder system integrated with Claude Code. This is NOT a standalone product with its own UI—it leverages Claude Code's slash commands, MCP servers, and memory system.
+
 ## ADDED Requirements
 
 ### Requirement: Natural Language Intent Parsing
@@ -101,47 +103,33 @@ The system SHALL provide a Deployment Agent that configures hosting (Vercel), da
 The system SHALL present strategic clarification questions to users at business-logic decision points, avoiding technical jargon.
 
 #### Scenario: Business-level clarification
-- **WHEN** system needs clarification on business logic
+- **WHEN** system needs clarification on business logic (e.g., payment guest checkout vs required accounts)
 - **THEN** presents question in user's domain language
-- **AND** provides 2-4 clear options with examples
+- **AND** provides 2-4 clear options
 - **AND** includes smart default selection
-- **AND** allows skipping with "use defaults" option
 
-#### Scenario: Avoid technical questions
-- **WHEN** system needs technical decision (e.g., index strategy)
+#### Scenario: Apply technical defaults
+- **WHEN** system needs technical decision (e.g., index strategy, RLS policy pattern)
 - **THEN** applies best-practice default without prompting user
 - **AND** logs decision in generated documentation
-- **AND** allows expert users to override via config file
 
-### Requirement: Context Efficiency
-The system SHALL optimize context usage through scoped sub-agent contexts, prompt caching, and checkpointing to support long-running build sessions.
+### Requirement: Context Management
+The system SHALL provide basic context scoping per sub-agent to minimize irrelevant information in agent prompts.
 
 #### Scenario: Scoped sub-agent context
 - **WHEN** sub-agent is invoked
-- **THEN** receives only relevant subset of global context
-- **AND** boilerplate structure is cached across requests
+- **THEN** receives only relevant subset of global context (entities, operations relevant to that agent)
 - **AND** generated code from dependent agents is included
+- **AND** boilerplate structure is referenced without full duplication
 
-#### Scenario: Checkpoint progress
-- **WHEN** generation session exceeds 5 minutes
-- **THEN** system checkpoints completed sub-agent outputs
-- **AND** allows resuming from last checkpoint if interrupted
-- **AND** user can review/edit checkpoint before continuing
+### Requirement: Code Validation
+The system SHALL validate all generated code against TypeScript compiler to catch syntax/type errors before finalizing.
 
-### Requirement: Validation and Testing
-The system SHALL validate all generated code against TypeScript compiler, run automated tests, and provide preview environment before finalizing.
-
-#### Scenario: TypeScript validation
+#### Scenario: TypeScript compilation check
 - **WHEN** code generation completes
 - **THEN** runs `tsc --noEmit` on all TypeScript files
-- **AND** reports compilation errors with context
-- **AND** automatically fixes common issues (missing imports, type mismatches)
-
-#### Scenario: Automated testing
-- **WHEN** validation passes
-- **THEN** generates basic tests for each API endpoint
-- **AND** runs test suite to verify correctness
-- **AND** provides test coverage report
+- **AND** reports compilation errors with file/line context
+- **AND** provides actionable error messages for user to fix
 
 ### Requirement: Conversational Refinement Loop
 The system SHALL support iterative refinement through natural language conversation, allowing users to request modifications to generated SaaS.
@@ -158,17 +146,11 @@ The system SHALL support iterative refinement through natural language conversat
 - **AND** applies modification using Frontend Agent
 - **AND** preserves custom user changes if any
 
-### Requirement: Documentation Generation
-The system SHALL automatically generate user-facing documentation explaining the generated SaaS architecture, features, and customization guide.
+### Requirement: Basic Documentation
+The system SHALL generate minimal technical documentation describing the generated SaaS structure.
 
-#### Scenario: Architecture documentation
+#### Scenario: Architecture overview
 - **WHEN** SaaS generation completes
-- **THEN** creates `ARCHITECTURE.md` explaining database schema, API endpoints, and UI structure
-- **AND** includes diagrams (entity-relationship, API flow)
-- **AND** documents all technical decisions made by agents
-
-#### Scenario: User guide
-- **WHEN** SaaS generation completes
-- **THEN** creates `USER_GUIDE.md` for end-users of the SaaS
-- **AND** explains how to use each feature in plain language
-- **AND** includes screenshots of key workflows
+- **THEN** creates `ARCHITECTURE.md` explaining database schema, API endpoints, and component structure
+- **AND** documents key technical decisions made by agents (RLS policies, auth flow, payment setup)
+- **AND** provides deployment instructions
