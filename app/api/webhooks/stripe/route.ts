@@ -93,7 +93,12 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as Stripe.Subscription & {
+          current_period_start?: number | null;
+          current_period_end?: number | null;
+          trial_start?: number | null;
+          trial_end?: number | null;
+        };
         const customerId = subscription.customer as string;
         const userId = subscription.metadata.user_id;
 
@@ -176,8 +181,16 @@ export async function POST(request: NextRequest) {
       }
 
       case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId = invoice.subscription as string;
+        const invoice = event.data.object as Stripe.Invoice & {
+          subscription?: string | Stripe.Subscription | null;
+        };
+        const subscriptionValue = invoice.subscription;
+        const subscriptionId =
+          typeof subscriptionValue === 'string'
+            ? subscriptionValue
+            : subscriptionValue && 'id' in subscriptionValue
+            ? subscriptionValue.id
+            : undefined;
 
         if (subscriptionId) {
           await supabaseAdmin

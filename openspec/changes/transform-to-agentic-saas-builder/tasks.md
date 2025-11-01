@@ -16,7 +16,7 @@
 - [x] 2.4 Add RLS policy generation based on inferred permissions
 - [x] 2.5 Create API Agent module (`lib/agentic/agents/api-agent.ts`)
 - [x] 2.6 Implement operation-to-endpoint mapping logic
-- [ ] 2.7 Add Stripe integration generation for payment operations
+- [x] 2.7 Add Stripe integration generation for payment operations
 - [x] 2.8 Create Frontend Agent module (`lib/agentic/agents/frontend-agent.ts`)
 - [ ] 2.9 Implement workflow-to-UI mapping logic
 - [x] 2.10 Add component templates for common patterns (tables, forms, dashboards)

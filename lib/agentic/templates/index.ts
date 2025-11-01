@@ -1,5 +1,7 @@
 import { Entity, Relationship, Operation, ArtifactFile } from '../types';
 
+const STRIPE_API_VERSION = '2024-06-20';
+
 function compile(template: string, vars: Record<string, string>): string {
   return template.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => String(vars[k] ?? ''));
 }
@@ -257,56 +259,235 @@ export function generateReactPage(entity: Entity): ArtifactFile {
   return { path: `app/${entity.name.toLowerCase()}s/page.tsx`, content: jsx };
 }
 
-export function generateStripeCheckoutExamples(): ArtifactFile[] {
-  const buttonPath = 'app/agentic/components/CheckoutButton.tsx';
-  const pagePath = 'app/agentic/subscribe/page.tsx';
+export function generateStripeApiArtifacts(): ArtifactFile[] {
+  const checkoutPath = 'app/api/stripe/checkout/route.ts';
+  const webhookPath = 'app/api/stripe/webhook/route.ts';
 
-  const button = [
+  const checkout = [
+    "import Stripe from 'stripe'",
+    "import { NextResponse } from 'next/server'",
+    '',
+    'const requiredEnv = (key: string) => {',
+    "  const value = process.env[key]",
+    '  if (!value) {',
+    "    throw new Error(`Missing environment variable: ${key}`)",
+    '  }',
+    '  return value;',
+    '};',
+    '',
+    'export async function POST(req: Request) {',
+    '  try {',
+    '    const secret = requiredEnv("STRIPE_SECRET_KEY");',
+    "    const stripe = new Stripe(secret, { apiVersion: '" + STRIPE_API_VERSION + "' })",
+    '    const body = await req.json();',
+    "    const priceId: string | undefined = body?.priceId ?? process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY",
+    '    if (!priceId) {',
+    "      return NextResponse.json({ error: 'Missing priceId' }, { status: 400 })",
+    '    }',
+    "    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'",
+    '    const session = await stripe.checkout.sessions.create({',
+    "      mode: 'subscription',",
+    '      success_url: body?.successUrl ?? `${siteUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,',
+    '      cancel_url: body?.cancelUrl ?? `${siteUrl}/pricing`,',
+    '      line_items: [{ price: priceId, quantity: 1 }],',
+    '      customer_email: body?.customerEmail ?? undefined,',
+    '      metadata: {',
+    "        user_id: body?.userId ?? '',",
+    "        tier: body?.tier ?? 'pro',",
+    '        price_id: priceId,',
+    '      },',
+    '    });',
+    '    if (!session.url) {',
+    "      return NextResponse.json({ error: 'Unable to create checkout session' }, { status: 500 })",
+    '    }',
+    '    return NextResponse.json({ url: session.url });',
+    '  } catch (err: any) {',
+    "    return NextResponse.json({ error: err?.message ?? 'Unexpected error' }, { status: 500 })",
+    '  }',
+    '}',
+  ].join('\n');
+
+  const webhook = [
+    "import Stripe from 'stripe'",
+    "import { NextResponse } from 'next/server'",
+    "import { createAdminClient } from '@/lib/supabase/server'",
+    '',
+    'const getStripe = () => {',
+    '  const secret = process.env.STRIPE_SECRET_KEY;',
+    '  if (!secret) {',
+    "    throw new Error('STRIPE_SECRET_KEY not configured')",
+    '  }',
+    "  return new Stripe(secret, { apiVersion: '" + STRIPE_API_VERSION + "' })",
+    '};',
+    '',
+    'export async function POST(req: Request) {',
+    '  const signature = req.headers.get("stripe-signature");',
+    '  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;',
+    '  if (!signature || !webhookSecret) {',
+    "    return NextResponse.json({ error: 'Webhook signature missing' }, { status: 400 })",
+    '  }',
+    '',
+    '  const payload = await req.text();',
+    '  let event: Stripe.Event;',
+    '  try {',
+    '    event = getStripe().webhooks.constructEvent(payload, signature, webhookSecret);',
+    '  } catch (err: any) {',
+    "    return NextResponse.json({ error: err?.message ?? 'Invalid signature' }, { status: 400 })",
+    '  }',
+    '',
+    '  try {',
+    "    if (event.type === 'checkout.session.completed') {",
+    "      const session = event.data.object as Stripe.Checkout.Session;",
+    '      const supabase = await createAdminClient();',
+    '      const updates = {',
+    "        stripe_subscription_id: session.subscription ?? '',",
+    "        stripe_customer_id: session.customer?.toString() ?? '',",
+    "        stripe_price_id: session.metadata?.price_id ?? '',",
+    "        status: session.status ?? 'active',",
+    "        user_id: session.metadata?.user_id ?? null,",
+    '        updated_at: new Date().toISOString(),',
+    '      };',
+    '      await supabase.from("subscriptions").upsert(updates, { onConflict: "stripe_subscription_id" });',
+    '    }',
+    '  } catch (err: any) {',
+    '    console.error("Stripe webhook error", err);',
+    "    return NextResponse.json({ error: err?.message ?? 'Webhook handling failed' }, { status: 500 })",
+    '  }',
+    '',
+    "  return NextResponse.json({ received: true })",
+    '}',
+  ].join('\n');
+
+  return [
+    { path: checkoutPath, content: checkout },
+    { path: webhookPath, content: webhook },
+  ];
+}
+
+export function generateStripeFrontendArtifacts(): ArtifactFile[] {
+  const checkoutButtonPath = 'app/pricing/components/CheckoutButton.tsx';
+  const pricingPagePath = 'app/pricing/page.tsx';
+
+  const checkoutButton = [
     '"use client"',
     '',
     'import { useState } from "react"',
     '',
-    'export default function CheckoutButton() {',
+    'type Props = { priceId: string; tier: string; period?: string }',
+    '',
+    'export default function CheckoutButton({ priceId, tier, period = "monthly" }: Props) {',
     '  const [loading, setLoading] = useState(false)',
-    '  const onClick = async () => {',
+    '',
+    '  const handleClick = async () => {',
     '    try {',
     '      setLoading(true)',
     '      const res = await fetch("/api/stripe/checkout", {',
     '        method: "POST",',
-    '        headers: { "Content-Type": "application/json" },',
-    '        body: JSON.stringify({ tier: "pro", period: "monthly" })',
+    "        headers: { 'Content-Type': 'application/json' },",
+    '        body: JSON.stringify({ priceId, tier, period })',
     '      })',
-    '      if (!res.ok) { alert("Checkout failed"); return }',
+    '      if (!res.ok) {',
+    "        const message = await res.text();",
+    '        throw new Error(message || "Failed to create checkout session")',
+    '      }',
     '      const { url } = await res.json()',
     '      window.location.href = url',
-    '    } finally { setLoading(false) }',
+    '    } catch (err) {',
+    '      console.error(err)',
+    '      alert("Unable to start checkout. Please try again.")',
+    '    } finally {',
+    '      setLoading(false)',
+    '    }',
     '  }',
+    '',
     '  return (',
-    '    <button onClick={onClick} disabled={loading} className="px-4 py-2 rounded bg-black text-white">',
-    '      {loading ? "Redirecting…" : "Subscribe Pro"}',
+    '    <button',
+    '      onClick={handleClick}',
+    '      disabled={loading || !priceId}',
+    '      className="w-full rounded-md bg-black px-4 py-2 text-white transition hover:bg-black/80 disabled:cursor-not-allowed disabled:opacity-60"',
+    '    >',
+    '      {loading ? "Redirecting…" : `Subscribe ${tier}`}',
     '    </button>',
     '  )',
     '}',
-  ].join('\n')
+  ].join('\n');
 
-  const page = [
-    'import CheckoutButton from "../components/CheckoutButton"',
+  const pricingPage = [
+    'import CheckoutButton from "./components/CheckoutButton"',
     '',
-    'export default function SubscribePage() {',
+    'const plans = [',
+    '  {',
+    "    name: 'Pro',",
+    "    priceLabel: '$14.99 / month',",
+    "    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY ?? '',",
+    "    features: ['Unlimited projects', 'Client portals', 'Priority support'],",
+    '  },',
+    '  {',
+    "    name: 'Enterprise',",
+    "    priceLabel: '$99.99 / month',",
+    "    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_MONTHLY ?? '',",
+    "    features: ['Everything in Pro', 'Dedicated manager', 'Custom integrations'],",
+    '  },',
+    '];',
+    '',
+    'export default function PricingPage() {',
     '  return (',
-    '    <div className="max-w-xl mx-auto p-6 space-y-4">',
-    '      <h1 className="text-2xl font-semibold">Subscribe</h1>',
-    '      <p>Start a Pro subscription using Stripe Checkout.</p>',
-    '      <CheckoutButton />',
+    '    <div className="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-16">',
+    '      <div className="text-center">',
+    '        <h1 className="text-4xl font-bold">Pricing</h1>',
+    '        <p className="mt-4 text-muted-foreground">Pick a plan and start building your SaaS in minutes.</p>',
+    '      </div>',
+    '      <div className="grid gap-6 md:grid-cols-2">',
+    '        {plans.map((plan) => (',
+    '          <div key={plan.name} className="flex h-full flex-col justify-between rounded-xl border border-border p-6 shadow-sm">',
+    '            <div className="space-y-4">',
+    '              <h2 className="text-2xl font-semibold">{plan.name}</h2>',
+    '              <p className="text-3xl font-bold">{plan.priceLabel}</p>',
+    '              <ul className="space-y-2 text-sm text-muted-foreground">',
+    '                {plan.features.map((feature) => (',
+    '                  <li key={feature}>• {feature}</li>',
+    '                ))}',
+    '              </ul>',
+    '            </div>',
+    '            <div className="mt-6">',
+    '              <CheckoutButton priceId={plan.priceId} tier={plan.name} />',
+    '              {!plan.priceId && (',
+    '                <p className="mt-2 text-xs text-red-500">',
+    '                  {`Set NEXT_PUBLIC_STRIPE_PRICE_${plan.name.toUpperCase()}_MONTHLY in your environment to enable checkout.`}',
+    '                </p>',
+    '              )}',
+    '            </div>',
+    '          </div>',
+    '        ))}',
+    '      </div>',
     '    </div>',
-    '  )',
+    '  );',
     '}',
-  ].join('\n')
+  ].join('\n');
 
   return [
-    { path: buttonPath, content: button },
-    { path: pagePath, content: page },
-  ]
+    { path: checkoutButtonPath, content: checkoutButton },
+    { path: pricingPagePath, content: pricingPage },
+  ];
+}
+
+export function envTemplate(): string {
+  return [
+    '# Copy these into Vercel project env settings',
+    'NEXT_PUBLIC_SUPABASE_URL=',
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY=',
+    'SUPABASE_SERVICE_ROLE_KEY=',
+    'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=',
+    'STRIPE_SECRET_KEY=',
+    'STRIPE_WEBHOOK_SECRET=',
+    'NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY=',
+    'NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY=',
+    'NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_MONTHLY=',
+    'NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_YEARLY=',
+    '',
+    '# Optional app name',
+    'NEXT_PUBLIC_APP_NAME=',
+  ].join('\n');
 }
 
 export function generateTypes(entities: Entity[], relationships: Relationship[]): ArtifactFile {
