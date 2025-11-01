@@ -79,10 +79,8 @@ CREATE POLICY "Users can update their own profile"
     FOR UPDATE
     USING (auth.uid() = id);
 
-CREATE POLICY "Public profiles are viewable by everyone"
-    ON public.profiles
-    FOR SELECT
-    USING (true);
+-- NOTE: Public profile policy removed for security (least-privilege RLS)
+-- Users can only view their own profile via authenticated policies
 
 -- Subscriptions policies
 CREATE POLICY "Users can view their own subscriptions"

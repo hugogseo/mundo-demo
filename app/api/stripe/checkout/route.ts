@@ -3,9 +3,37 @@ import { createClient } from '@/lib/supabase/server';
 import { stripe } from '@/lib/stripe/server';
 import { getPriceId } from '@/lib/stripe/config';
 import { revalidatePath } from 'next/cache';
+import { rateLimit } from '@/lib/rate-limit';
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate Limiting: 5 requests per minute per IP
+    const { allowed, remaining } = rateLimit(request, 5, 60000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again in 1 minute.' },
+        { status: 429, headers: { 'Retry-After': '60' } },
+      );
+    }
+
+    // CSRF Protection: Validate Origin header
+    const origin = request.headers.get('origin');
+    const allowedOrigins = [
+      process.env.NEXT_PUBLIC_SITE_URL,
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ].filter(Boolean);
+
+    if (origin && !allowedOrigins.includes(origin)) {
+      return NextResponse.json(
+        { error: 'Invalid origin' },
+        { status: 403 },
+      );
+    }
+
     const supabase = await createClient();
 
     const {

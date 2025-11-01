@@ -6,6 +6,9 @@ import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import Stripe from 'stripe';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -86,6 +89,18 @@ export async function POST(request: NextRequest) {
     } catch (err) {
       console.error('Webhook signature verification failed:', err);
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+    }
+
+    // Idempotency: Check if event was already processed
+    const { data: existingEvent } = await supabaseAdmin
+      .from('webhook_events')
+      .select('id')
+      .eq('id', event.id)
+      .maybeSingle();
+
+    if (existingEvent) {
+      console.log(`Event ${event.id} already processed, skipping`);
+      return NextResponse.json({ received: true, skipped: true });
     }
 
     console.log(`Processing webhook event: ${event.type}`);
@@ -204,6 +219,11 @@ export async function POST(request: NextRequest) {
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
+
+    // Mark event as processed
+    await supabaseAdmin
+      .from('webhook_events')
+      .insert({ id: event.id, type: event.type });
 
     return NextResponse.json({ received: true });
   } catch (error) {
