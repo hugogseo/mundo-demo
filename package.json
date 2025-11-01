@@ -7,6 +7,7 @@
     "agentic:orchestrate": "tsx scripts/agentic.ts",
     "agentic:refine": "tsx scripts/agentic-refine.ts",
     "agentic:validate": "tsx scripts/validate-agentic.ts",
+    "agentic:init-supabase": "tsx scripts/init-supabase.ts",
     "agentic:deploy": "tsx scripts/deploy-vercel.ts",
     "format": "prettier --write .",
     "dev": "next dev",
