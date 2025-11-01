@@ -21,7 +21,7 @@
 - [ ] 2.9 Implement workflow-to-UI mapping logic
 - [x] 2.10 Add component templates for common patterns (tables, forms, dashboards)
 - [x] 2.11 Create Deployment Agent module (`lib/agentic/agents/deployment-agent.ts`)
-- [ ] 2.12 Implement Vercel auto-deployment integration
+- [x] 2.12 Implement Vercel auto-deployment integration
 - [ ] 2.13 Add Supabase project initialization logic
 
 ## 3. Intent Parsing & HITL
