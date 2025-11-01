@@ -22,14 +22,14 @@
 - [ ] 3.4 Add "Security Considerations" section to `README.md` (pending)
 
 ## 4. Validation & Testing
-- [ ] 4.1 Run `openspec validate security-mvp-for-gumroad-launch --strict`
-- [ ] 4.2 Test webhook idempotency (send duplicate Stripe events)
-- [ ] 4.3 Test rate limiting (exceed 5 requests in 1 minute)
-- [ ] 4.4 Verify RLS policies block unauthorized access
-- [ ] 4.5 Test setup flow with new `SETUP_CHECKLIST.md`
+- [x] 4.1 Run `openspec validate security-mvp-for-gumroad-launch --strict` ✅ PASSED
+- [ ] 4.2 Test webhook idempotency (send duplicate Stripe events) - Manual testing
+- [ ] 4.3 Test rate limiting (exceed 5 requests in 1 minute) - Manual testing
+- [ ] 4.4 Verify RLS policies block unauthorized access - Manual testing
+- [ ] 4.5 Test setup flow with new `SETUP_CHECKLIST.md` - Manual testing
 
 ## 5. ZIP Preparation
-- [ ] 5.1 Update version to `v1.0.0` in `package.json`
-- [ ] 5.2 Create `CHANGELOG.md` documenting security fixes
-- [ ] 5.3 Generate ZIP with all updated files
-- [ ] 5.4 Beta test with 2 external reviewers
+- [x] 5.1 Update version to `v1.0.0` in `package.json`
+- [x] 5.2 Create `CHANGELOG.md` documenting security fixes
+- [ ] 5.3 Generate ZIP with all updated files - Ready for Gumroad
+- [ ] 5.4 Beta test with 2 external reviewers - Pending
