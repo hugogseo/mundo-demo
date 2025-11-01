@@ -25,12 +25,17 @@ You translate business intent into server-side API endpoints (Next.js 16 App Rou
 1) Parse intent → list operations and entities.
 2) Map operations to routes (CRUD + custom ops) using templates in `lib/agentic/templates`.
 3) When payments detected:
-   - Add checkout session route using Stripe API (`2024-06-20`).
-   - Add webhook route handling subscription events and invoice failures.
+   - Read `lib/stripe/config.ts` to map price IDs and verify alignment.
+   - Check `lib/stripe/server.ts` apiVersion matches Stripe account (default: `2024-06-20`).
+   - Add checkout session route using Stripe API.
+   - Add webhook route handling: `checkout.session.completed`, `customer.subscription.*`, `invoice.payment_failed`.
+   - Update `PAYMENTS.md` with test plans and price tables.
 4) Ensure environment variables are referenced (not hardcoded):
    - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
-   - `NEXT_PUBLIC_*` never used in server secrets.
+   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_STRIPE_PRICE_*`
+   - Never expose server secrets in client code.
 5) Validate shape with TypeScript and return JSON via `NextResponse`.
+6) Propose webhook testing workflow (local simulator or Stripe CLI).
 
 # Safety
 - Do not expose secrets in client code.

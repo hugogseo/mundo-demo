@@ -8,17 +8,19 @@
 - [x] 1.5 Update `package.json` with TypeScript, tsx, and testing dependencies
 
 ## 2. Sub-Agent Modules
-- [x] 2.1 Create Schema Agent interface with input/output contracts
-- [x] 2.2 Implement entity-to-schema mapping logic
+- [x] 2.1 Create Schema Agent for Claude Code (`.claude/agents/schema-agent.md`)
+- [x] 2.2 Implement entity-to-schema mapping logic in templates
 - [x] 2.3 Add RLS policy generation based on inferred permissions
-- [x] 2.4 Create API Agent module (`lib/agentic/agents/api-agent.ts`)
+- [x] 2.4 Create API Agent for Claude Code (`.claude/agents/api-agent.md`)
 - [x] 2.5 Implement operation-to-endpoint mapping logic
 - [x] 2.6 Add Stripe integration generation for payment operations
-- [x] 2.7 Create Frontend Agent module (`lib/agentic/agents/frontend-agent.ts`)
+- [x] 2.7 Create Frontend Agent for Claude Code (`.claude/agents/frontend-agent.md`)
 - [x] 2.8 Add component templates for common patterns (tables, forms, dashboards)
-- [x] 2.9 Create Deployment Agent module (`lib/agentic/agents/deployment-agent.ts`)
+- [x] 2.9 Create Deployment Agent for Claude Code (`.claude/agents/deployment-agent.md`)
 - [x] 2.10 Implement Vercel auto-deployment script (`scripts/deploy-vercel.ts`)
 - [x] 2.11 Add Supabase project initialization script (`scripts/init-supabase.ts`)
+- [x] 2.12 Integrate sub-agents with slash commands (orchestration)
+- [x] 2.13 Consolidate legacy skills into sub-agents (zero overlap)
 
 ## 3. Intent Parsing & HITL
 - [x] 3.1 Improve entity extraction in intent parser (expand keyword coverage)

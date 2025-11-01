@@ -25,7 +25,11 @@ Iterate on a generated SaaS by describing changes in natural language. The orche
 - Produce a delta plan (what changes, what remains)
 
 ### 3) Orchestrate Delta Generation
-- Run `lib/agentic/orchestrator.ts` with merged intent
+- Classify delta and invoke appropriate sub-agents:
+  - Schema changes → **Schema Agent** (migrations, RLS)
+  - API/endpoint changes → **API Agent** (routes, Stripe)
+  - UI changes → **Frontend Agent** (pages, components)
+  - Multi-layer changes → orchestrate affected agents in sequence
 - Collect artifacts and annotate as `added/modified/removed`
 - Display plan summary and impacted paths
 

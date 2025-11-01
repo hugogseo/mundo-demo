@@ -6,14 +6,20 @@ This directory contains Claude Code-specific configuration, commands, and skills
 
 ```
 .claude/
+├── agents/            # Specialized sub-agents for focused tasks
+│   ├── schema-agent.md
+│   ├── api-agent.md
+│   ├── frontend-agent.md
+│   └── deployment-agent.md
 ├── commands/          # Slash commands for guided workflows
 │   ├── setup-supabase.md
 │   ├── setup-stripe.md
 │   ├── deploy-full.md
 │   ├── build-saas.md
 │   ├── refine-saas.md
-│   └── audit-security.md
-├── skills/            # Reusable skills (future)
+│   ├── audit-security.md
+│   └── openspec/      # OpenSpec workflow commands
+├── skills/            # Deprecated (knowledge migrated to agents)
 └── README.md          # This file
 ```
 
@@ -50,9 +56,57 @@ Detailed instructions...
 3. Write step-by-step instructions
 4. Restart Claude Code to load the command
 
-## Skills
+## Sub-Agents
 
-Skills are reusable code generation patterns. Coming soon.
+Sub-agents are specialized AI agents with focused expertise. Commands orchestrate sub-agents to accomplish complex workflows.
+
+### Available Sub-Agents
+
+- **Schema Agent** (`schema-agent.md`)
+  - **Focus:** Database schema, migrations, RLS policies
+  - **Scope:** `supabase/migrations/`, `types/database.ts`
+  - **Expertise:** PostgreSQL, Supabase RLS, triggers, indexes
+
+- **API Agent** (`api-agent.md`)
+  - **Focus:** API routes, webhooks, Stripe integration
+  - **Scope:** `app/api/`, `lib/stripe/`
+  - **Expertise:** Next.js App Router, Stripe API, validation
+
+- **Frontend Agent** (`frontend-agent.md`)
+  - **Focus:** Pages, components, UI/UX
+  - **Scope:** `app/`, UI components
+  - **Expertise:** React, Tailwind, SSR patterns, pricing flows
+
+- **Deployment Agent** (`deployment-agent.md`)
+  - **Focus:** Deployment automation, environment setup
+  - **Scope:** `scripts/`, deployment docs
+  - **Expertise:** Vercel, Supabase provisioning, CI/CD
+
+### How Commands Use Sub-Agents
+
+Commands orchestrate sub-agents in sequence:
+
+```
+/build-saas
+  └─> Schema Agent (migrations)
+      └─> API Agent (routes + Stripe)
+          └─> Frontend Agent (pages)
+              └─> Deployment Agent (plan)
+```
+
+### Invoking Sub-Agents Directly
+
+You can invoke sub-agents by name in conversation:
+
+```
+"Use Schema Agent to add a comments table with RLS"
+"Let API Agent generate the webhook handler"
+"Ask Frontend Agent to create a dashboard page"
+```
+
+## Skills (Deprecated)
+
+Legacy skills have been consolidated into sub-agents. See `.claude/skills/.deprecated/` for archive.
 
 ## MCP Integration
 

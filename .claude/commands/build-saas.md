@@ -30,12 +30,15 @@ Turn a plain-language idea into a working SaaS using the agentic orchestrator an
 - If questions exist, ask them in non-technical terms. Use smart defaults when the user skips.
 
 ### 3) Orchestrate Sub-Agents (Generate Artifacts)
-- Read `lib/agentic/orchestrator.ts`
-- Use Schema, API, and Frontend agents to prepare artifacts (do NOT write yet)
+- Invoke sub-agents in sequence:
+  1. **Schema Agent** → generates migrations and RLS policies
+  2. **API Agent** → generates API routes (+ Stripe if payments detected)
+  3. **Frontend Agent** → generates pages and components
 - Show plan summary:
   - Migrations to create: [paths]
   - API routes to add: [paths]
   - Pages/components to add: [paths]
+- Preview artifacts before writing
 
 ### 4) Confirm and Write Files
 - On user confirmation, write artifacts to disk

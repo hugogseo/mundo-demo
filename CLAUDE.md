@@ -23,6 +23,47 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 This project is designed to work seamlessly with Claude Code through MCPs, slash commands, and memory.
 
+## Architecture Overview
+
+This boilerplate uses a **zero-effort SaaS** architecture optimized for Claude Code:
+
+### Three-Layer System
+
+1. **Sub-Agents** (`.claude/agents/`) - Specialized AI with focused expertise
+   - `schema-agent` → Database & RLS
+   - `api-agent` → API routes & Stripe
+   - `frontend-agent` → UI components
+   - `deployment-agent` → Deployment automation
+
+2. **Slash Commands** (`.claude/commands/`) - End-to-end workflows
+   - `/build-saas` → Generate full SaaS from description
+   - `/refine-saas` → Iterative modifications
+   - `/setup-supabase` → Database initialization
+   - `/setup-stripe` → Payment integration
+   - `/deploy-full` → Production deployment
+
+3. **Orchestration** (`lib/agentic/`) - Internal automation
+   - `intent-parser.ts` → NLP to entities/operations
+   - `orchestrator.ts` → Coordinates sub-agents
+   - `templates/` → Code generation patterns
+   - CLI scripts for local execution
+
+### How It Works
+
+```
+User: "Build an invoicing app"
+  ↓
+/build-saas command
+  ↓
+Intent Parser (entities: Invoice, Client, Payment)
+  ↓
+Schema Agent → migrations + RLS
+API Agent → CRUD + Stripe checkout
+Frontend Agent → pages + components
+  ↓
+Generated SaaS ready to deploy
+```
+
 ## MCP Servers
 
 Model Context Protocol (MCP) servers extend Claude's capabilities with external tools and data sources.

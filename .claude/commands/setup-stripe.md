@@ -40,9 +40,13 @@ STRIPE_WEBHOOK_SECRET=whsec_... (will be generated)
 ```
 
 ### 3. Generate Artifacts
-The agentic system will generate:
+Invoke **API Agent** to generate:
 - `app/api/stripe/checkout/route.ts` - Checkout session handler
-- `app/api/stripe/webhook/route.ts` - Webhook event handler  
+- `app/api/stripe/webhook/route.ts` - Webhook event handler
+- Price ID alignment with `lib/stripe/config.ts`
+- API version verification
+
+Invoke **Frontend Agent** to generate:
 - `app/pricing/page.tsx` - Pricing page with tiers
 - `app/pricing/components/CheckoutButton.tsx` - Payment button
 

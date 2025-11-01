@@ -192,6 +192,13 @@ If deployment fails:
 - [ ] Performance monitoring enabled
 - [ ] Backup strategy confirmed
 
+### 2) Generate Deployment Plan
+- Invoke **Deployment Agent** to create:
+  - `agentic/deploy/DEPLOY_PLAN.md` - Step-by-step deployment guide
+  - `agentic/deploy/ENV_TEMPLATE` - All required environment variables
+  - `agentic/deploy/CHECKLIST.md` - Pre/post-deployment checklist
+- Show plan summary to user
+
 ## Memory
 
 Record deployment details:
