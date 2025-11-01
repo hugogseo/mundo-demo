@@ -3,24 +3,24 @@
 ## 1. Foundation & Infrastructure
 - [ ] 1.1 Research and prototype Anthropic sub-agents SDK integration
 - [ ] 1.2 Design sub-agent communication protocol (JSON schema for messages)
-- [ ] 1.3 Create orchestrator core (`lib/agentic/orchestrator.ts`)
-- [ ] 1.4 Implement intent parser module (`lib/agentic/intent-parser.ts`)
-- [ ] 1.5 Add context management utilities (caching, scoping, checkpointing)
-- [ ] 1.6 Create template engine for code generation (`lib/agentic/templates/`)
-- [ ] 1.7 Update `package.json` with new dependencies (sub-agents SDK, template engine)
+- [x] 1.3 Create orchestrator core (`lib/agentic/orchestrator.ts`)
+- [x] 1.4 Implement intent parser module (`lib/agentic/intent-parser.ts`)
+- [x] 1.5 Add context management utilities (caching, scoping, checkpointing)
+- [x] 1.6 Create template engine for code generation (`lib/agentic/templates/`)
+- [x] 1.7 Update `package.json` with new dependencies (sub-agents SDK, template engine)
 
 ## 2. Sub-Agent Modules
 - [ ] 2.1 Refactor `supabase-migrations-and-rls` Skill as Schema Agent module
-- [ ] 2.2 Create Schema Agent interface with input/output contracts
-- [ ] 2.3 Implement entity-to-schema mapping logic
-- [ ] 2.4 Add RLS policy generation based on inferred permissions
-- [ ] 2.5 Create API Agent module (`lib/agentic/agents/api-agent.ts`)
-- [ ] 2.6 Implement operation-to-endpoint mapping logic
+- [x] 2.2 Create Schema Agent interface with input/output contracts
+- [x] 2.3 Implement entity-to-schema mapping logic
+- [x] 2.4 Add RLS policy generation based on inferred permissions
+- [x] 2.5 Create API Agent module (`lib/agentic/agents/api-agent.ts`)
+- [x] 2.6 Implement operation-to-endpoint mapping logic
 - [ ] 2.7 Add Stripe integration generation for payment operations
-- [ ] 2.8 Create Frontend Agent module (`lib/agentic/agents/frontend-agent.ts`)
+- [x] 2.8 Create Frontend Agent module (`lib/agentic/agents/frontend-agent.ts`)
 - [ ] 2.9 Implement workflow-to-UI mapping logic
-- [ ] 2.10 Add component templates for common patterns (tables, forms, dashboards)
-- [ ] 2.11 Create Deployment Agent module (`lib/agentic/agents/deployment-agent.ts`)
+- [x] 2.10 Add component templates for common patterns (tables, forms, dashboards)
+- [x] 2.11 Create Deployment Agent module (`lib/agentic/agents/deployment-agent.ts`)
 - [ ] 2.12 Implement Vercel auto-deployment integration
 - [ ] 2.13 Add Supabase project initialization logic
 
@@ -28,19 +28,19 @@
 - [ ] 3.1 Create entity extraction prompt templates
 - [ ] 3.2 Implement relationship inference algorithm
 - [ ] 3.3 Add ambiguity detection logic
-- [ ] 3.4 Create HITL question generator (`lib/agentic/hitl.ts`)
+- [x] 3.4 Create HITL question generator (`lib/agentic/hitl.ts`)
 - [ ] 3.5 Implement question batching and prioritization
-- [ ] 3.6 Add default selection heuristics
+- [x] 3.6 Add default selection heuristics
 - [ ] 3.7 Create conversational refinement loop handler
 
 ## 4. Code Generation & Templates
-- [ ] 4.1 Create migration template with dynamic columns/constraints
-- [ ] 4.2 Create API route templates (CRUD, auth, validation)
-- [ ] 4.3 Create React component templates (forms, tables, modals)
-- [ ] 4.4 Create page templates (dashboard, list, detail)
-- [ ] 4.5 Add TypeScript type generation from schema
+- [x] 4.1 Create migration template with dynamic columns/constraints
+- [x] 4.2 Create API route templates (CRUD, auth, validation)
+- [x] 4.3 Create React component templates (forms, tables, modals)
+- [x] 4.4 Create page templates (dashboard, list, detail)
+- [x] 4.5 Add TypeScript type generation from schema
 - [ ] 4.6 Implement template composition engine (merge multiple templates)
-- [ ] 4.7 Add code formatting (Prettier integration)
+- [x] 4.7 Add code formatting (Prettier integration)
 
 ## 5. Validation & Testing
 - [ ] 5.1 Create TypeScript compilation validator
@@ -51,12 +51,12 @@
 - [ ] 5.6 Add smoke test for generated SaaS (can it boot?)
 
 ## 6. Commands & UI
-- [ ] 6.1 Create `/build-saas` command handler (`.claude/commands/build-saas.md`)
+- [x] 6.1 Create `/build-saas` command handler (`.claude/commands/build-saas.md`)
 - [ ] 6.2 Implement natural language prompt parsing
 - [ ] 6.3 Add streaming progress UI (console output)
-- [ ] 6.4 Create `/refine-saas` command handler (`.claude/commands/refine-saas.md`)
+- [x] 6.4 Create `/refine-saas` command handler (`.claude/commands/refine-saas.md`)
 - [ ] 6.5 Implement delta generation for refinements
-- [ ] 6.6 Add preview mode (show generated code before finalizing)
+- [x] 6.6 Add preview mode (show generated code before finalizing)
 - [ ] 6.7 Create cancellation and resumption flow
 
 ## 7. Context Engineering
