@@ -44,10 +44,48 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protected routes - redirect to login if not authenticated
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  const isDashboard = request.nextUrl.pathname.startsWith('/dashboard');
+  const isMarketplace = request.nextUrl.pathname.startsWith('/marketplace');
+  const isAdmin = request.nextUrl.pathname.startsWith('/admin');
+
+  if (!user && (isDashboard || isMarketplace || isAdmin)) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
     return NextResponse.redirect(url);
+  }
+
+  // Membership protection for marketplace
+  if (user && isMarketplace) {
+    const { data: profile } = (await supabase
+      .from('profiles')
+      .select('membership_tier')
+      .eq('id', user.id)
+      .single()) as any;
+
+    if (!profile || profile.membership_tier === 'free') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/pricing';
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Admin protection
+  if (user && isAdmin) {
+    const { data: profile } = (await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle()) as any;
+
+    const userEmail = user.email?.toLowerCase();
+    const isMasterAdmin = userEmail === 'hugogseo@gmail.com' || userEmail === 'hugogseo@gmil.com';
+    const hasAdminRights = profile?.is_admin === true || profile?.membership_tier === 'enterprise';
+
+    if (!isMasterAdmin && !hasAdminRights) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
   }
 
   // Redirect authenticated users away from auth pages

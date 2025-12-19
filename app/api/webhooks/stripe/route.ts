@@ -204,14 +204,41 @@ export async function POST(request: NextRequest) {
           typeof subscriptionValue === 'string'
             ? subscriptionValue
             : subscriptionValue && 'id' in subscriptionValue
-            ? subscriptionValue.id
-            : undefined;
+              ? subscriptionValue.id
+              : undefined;
 
         if (subscriptionId) {
           await supabaseAdmin
             .from('subscriptions')
             .update({ status: 'past_due' })
             .eq('stripe_subscription_id', subscriptionId);
+        }
+        break;
+      }
+
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const { type, plan_id, user_id } = session.metadata || {};
+
+        if (type === 'vacation_booking' && plan_id && user_id) {
+          // 1. Mark plan as booked
+          await supabaseAdmin
+            .from('plans')
+            .update({ is_booked: true } as any)
+            .eq('id', plan_id);
+
+          // 2. Create booking record
+          await supabaseAdmin.from('bookings').insert({
+            user_id,
+            plan_id,
+            total_amount: (session.amount_total || 0) / 100,
+            status: 'confirmed',
+            stripe_payment_id: session.id
+          } as any);
+
+          console.log(`Vacation booking confirmed for plan ${plan_id}`);
+          revalidatePath('/marketplace/builder');
+          revalidatePath('/admin/bookings');
         }
         break;
       }
