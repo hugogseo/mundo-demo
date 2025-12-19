@@ -28,25 +28,24 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .maybeSingle();
 
-  // Auto-elevate Hugo for development convenience if profile exists
+  // Auto-elevate Hugo for development convenience
   const isHugoEmail = user.email === 'hugogseo@gmail.com' || user.email === 'hugogseo@gmil.com';
-  if (profile && isHugoEmail && (profile.membership_tier !== 'enterprise' || !profile.is_admin)) {
+  if (isHugoEmail && (!profile || profile.membership_tier !== 'enterprise' || !profile.is_admin)) {
+    const updatedProfile = {
+      id: user.id,
+      email: user.email,
+      membership_tier: 'enterprise',
+      is_admin: true
+    };
+
     try {
-      await supabase.from('profiles').upsert({
-        id: user.id,
-        email: user.email,
-        membership_tier: 'enterprise',
-        is_admin: true
-      } as any);
-      profile.is_admin = true;
+      await (supabase.from('profiles') as any).upsert(updatedProfile);
+      profile = updatedProfile;
     } catch (e) {
-      await supabase.from('profiles').upsert({
-        id: user.id,
-        email: user.email,
-        membership_tier: 'enterprise'
-      } as any);
+      console.error('Error auto-elevating admin:', e);
+      // Fallback update for local object even if upsert fails (though it shouldn't)
+      if (!profile) profile = updatedProfile;
     }
-    profile.membership_tier = 'enterprise';
   }
 
   const { data: subscription } = await supabase
