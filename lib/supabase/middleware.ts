@@ -43,6 +43,14 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Self-healing: If there's a 'code' but we're not on the callback route, redirect to it
+  const code = request.nextUrl.searchParams.get('code');
+  if (code && request.nextUrl.pathname !== '/auth/callback') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/auth/callback';
+    return NextResponse.redirect(url);
+  }
+
   // Protected routes - redirect to login if not authenticated
   const isDashboard = request.nextUrl.pathname.startsWith('/dashboard');
   const isMarketplace = request.nextUrl.pathname.startsWith('/marketplace');
