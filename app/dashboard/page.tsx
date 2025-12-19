@@ -22,11 +22,11 @@ export default async function DashboardPage() {
     redirect('/auth/login');
   }
 
-  let { data: profile } = await supabase
-    .from('profiles')
+  let { data: profile } = await (supabase
+    .from('profiles') as any)
     .select('*')
     .eq('id', user.id)
-    .maybeSingle() as any;
+    .maybeSingle();
 
   // Auto-elevate Hugo for development convenience if profile exists
   const isHugoEmail = user.email === 'hugogseo@gmail.com' || user.email === 'hugogseo@gmil.com';

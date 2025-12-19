@@ -71,11 +71,11 @@ export async function updateSession(request: NextRequest) {
 
   // Admin protection
   if (user && isAdmin) {
-    const { data: profile } = (await supabase
-      .from('profiles')
+    const { data: profile } = await (supabase
+      .from('profiles') as any)
       .select('*')
       .eq('id', user.id)
-      .maybeSingle()) as any;
+      .maybeSingle();
 
     const userEmail = user.email?.toLowerCase();
     const isMasterAdmin = userEmail === 'hugogseo@gmail.com' || userEmail === 'hugogseo@gmil.com';

@@ -21,11 +21,11 @@ export default async function AdminLayout({
 
   // 2. Get profile flags using admin client (bypasses RLS)
   const supabaseAdmin = await createAdminClient();
-  const { data: profile, error: profileError } = await supabaseAdmin
-    .from('profiles')
+  const { data: profile, error: profileError } = await (supabaseAdmin
+    .from('profiles') as any)
     .select('*')
     .eq('id', user.id)
-    .maybeSingle() as any;
+    .maybeSingle();
 
   if (profileError) {
     console.error('AdminLayout [DB]: Error fetching profile:', profileError);

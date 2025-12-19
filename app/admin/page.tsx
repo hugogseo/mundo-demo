@@ -11,10 +11,10 @@ export default async function AdminDashboardPage() {
     let usersCount = 0;
 
     try {
-        const { count: sCount } = await supabase.from('services').select('*', { count: 'exact', head: true });
-        const { count: dCount } = await supabase.from('last_minute_deals').select('*', { count: 'exact', head: true });
-        const { count: bCount } = await supabase.from('bookings').select('*', { count: 'exact', head: true });
-        const { count: uCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+        const { count: sCount } = await (supabase.from('services') as any).select('*', { count: 'exact', head: true });
+        const { count: dCount } = await (supabase.from('last_minute_deals') as any).select('*', { count: 'exact', head: true });
+        const { count: bCount } = await (supabase.from('bookings') as any).select('*', { count: 'exact', head: true });
+        const { count: uCount } = await (supabase.from('profiles') as any).select('*', { count: 'exact', head: true });
         servicesCount = sCount || 0;
         dealsCount = dCount || 0;
         bookingsCount = bCount || 0;

@@ -13,8 +13,8 @@ export default async function MarketplaceLayout({
         redirect('/auth/login');
     }
 
-    const { data: profile } = await supabase
-        .from('profiles')
+    const { data: profile } = await (supabase
+        .from('profiles') as any)
         .select('membership_tier')
         .eq('id', user.id)
         .single();
