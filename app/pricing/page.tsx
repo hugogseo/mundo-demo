@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -16,7 +16,7 @@ type CheckoutResponse =
   | { url: string; isUpgrade?: boolean; isPortal?: boolean }
   | { error: string };
 
-export default function PricingPage() {
+function PricingContent() {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
   const [loadingTier, setLoadingTier] = useState<Exclude<Tier, 'free'> | null>(null);
   const router = useRouter();
@@ -36,7 +36,7 @@ export default function PricingPage() {
 
       const confirmed = confirm(
         `Subscribe to ${tierName} (${billingPeriod}) for ${price}/${perText}?\n\n` +
-          'Click OK to continue to checkout.',
+        'Click OK to continue to checkout.',
       );
 
       if (!confirmed) {
@@ -174,11 +174,10 @@ export default function PricingPage() {
           <div className="flex flex-col items-center justify-center space-y-2">
             <div className="flex items-center space-x-4">
               <span
-                className={`text-sm font-medium ${
-                  billingPeriod === 'monthly'
+                className={`text-sm font-medium ${billingPeriod === 'monthly'
                     ? 'text-gray-900 dark:text-white'
                     : 'text-gray-500 dark:text-gray-400'
-                }`}
+                  }`}
               >
                 Monthly
               </span>
@@ -191,17 +190,15 @@ export default function PricingPage() {
                 aria-checked={billingPeriod === 'yearly'}
               >
                 <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    billingPeriod === 'yearly' ? 'translate-x-5' : 'translate-x-0'
-                  }`}
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${billingPeriod === 'yearly' ? 'translate-x-5' : 'translate-x-0'
+                    }`}
                 />
               </button>
               <span
-                className={`text-sm font-medium ${
-                  billingPeriod === 'yearly'
+                className={`text-sm font-medium ${billingPeriod === 'yearly'
                     ? 'text-gray-900 dark:text-white'
                     : 'text-gray-500 dark:text-gray-400'
-                }`}
+                  }`}
               >
                 Yearly
                 <span className="ml-1.5 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/20 dark:text-green-400">
@@ -222,11 +219,10 @@ export default function PricingPage() {
           {(['free', 'pro', 'enterprise'] as Tier[]).map(tier => (
             <div
               key={tier}
-              className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border-2 ${
-                tier === 'pro'
+              className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border-2 ${tier === 'pro'
                   ? 'border-blue-500 dark:border-blue-400 relative'
                   : 'border-gray-200 dark:border-gray-700'
-              }`}
+                }`}
             >
               {tier === 'pro' && (
                 <div className="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 text-xs font-semibold rounded-bl-lg">
@@ -320,5 +316,13 @@ export default function PricingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">Loading pricing...</div>}>
+      <PricingContent />
+    </Suspense>
   );
 }
