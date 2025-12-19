@@ -4,8 +4,8 @@ import { revalidatePath } from 'next/cache';
 export default async function AdminDealsPage() {
     const supabase = await createClient();
 
-    const { data: services } = await supabase.from('services').select('id, name').eq('is_active', true);
-    const { data: deals } = await supabase.from('last_minute_deals').select('*, services(name)').order('created_at', { ascending: false });
+    const { data: services } = await (supabase.from('services') as any).select('id, name').eq('is_active', true);
+    const { data: deals } = await (supabase.from('last_minute_deals') as any).select('*, services(name)').order('created_at', { ascending: false });
 
     async function addDeal(formData: FormData) {
         'use server';
@@ -15,7 +15,7 @@ export default async function AdminDealsPage() {
         const starts_at = formData.get('starts_at') as string;
         const ends_at = formData.get('ends_at') as string;
 
-        const { error } = await supabase.from('last_minute_deals').insert({
+        const { error } = await (supabase.from('last_minute_deals') as any).insert({
             service_id,
             deal_price,
             starts_at,
