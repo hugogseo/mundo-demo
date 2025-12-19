@@ -18,7 +18,9 @@ export async function signInWithMagicLink(formData: FormData) {
 
   const supabase = await createClient();
   const headersList = await headers();
-  const origin = headersList.get('origin') || 'http://localhost:3000';
+  const host = headersList.get('host');
+  const protocol = host?.includes('localhost') ? 'http' : 'https';
+  const origin = headersList.get('origin') || `${protocol}://${host}` || 'http://localhost:3001';
 
   // Build callback URL with redirect parameter if provided
   let callbackUrl = `${origin}/auth/callback`;
