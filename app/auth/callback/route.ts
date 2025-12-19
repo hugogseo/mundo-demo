@@ -10,21 +10,24 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error) {
-      const forwardedHost = request.headers.get('x-forwarded-host');
-      const isLocalEnv = process.env.NODE_ENV === 'development';
+    if (error) {
+      console.error('Auth callback error:', error);
+      return NextResponse.redirect(`${origin}/auth/error?message=${encodeURIComponent(error.message)}`);
+    }
 
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`);
-      }
+    const forwardedHost = request.headers.get('x-forwarded-host');
+    const isLocalEnv = process.env.NODE_ENV === 'development';
 
-      if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      }
-
+    if (isLocalEnv) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+
+    if (forwardedHost) {
+      return NextResponse.redirect(`https://${forwardedHost}${next}`);
+    }
+
+    return NextResponse.redirect(`${origin}${next}`);
   }
 
-  return NextResponse.redirect(`${origin}/auth/error`);
+  return NextResponse.redirect(`${origin}/auth/error?message=No+code+found`);
 }
