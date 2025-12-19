@@ -34,7 +34,7 @@ export default async function AdminDealsPage() {
                 <form action={addDeal} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <select name="service_id" className="p-2 border rounded-md" required>
                         <option value="">Seleccionar Servicio</option>
-                        {services?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        {services?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                     <input name="deal_price" type="number" step="0.01" placeholder="Precio Oferta" className="p-2 border rounded-md" required />
                     <input name="starts_at" type="datetime-local" className="p-2 border rounded-md" required />
